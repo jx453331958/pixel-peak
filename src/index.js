@@ -9,12 +9,23 @@
 const fs = require("fs-extra");
 const path = require("path");
 const { evaluate, chain, round } = require("mathjs");
+const dayjs = require('dayjs');
+const mkdirp = require('mkdirp');
+const xlsx = require('xlsx');
+
+const now = Date.now();
+
+const dirTimestamp = dayjs(now).format('YYYYMMDD-HH:mm:ss');
+
+const outDirPath = mkdirp.sync(`out_${dirTimestamp}`);
 
 const allFiles = fs
   .readdirSync(__dirname)
   .filter(name => !name.includes(".js"));
 
 allFiles.forEach(file => {
+  const timestamp = dayjs(Date.now()).format('YYYYMMDD-HH:mm:ss');
+  
   const rets = fs.readFileSync(path.resolve(__dirname, file), {
     encoding: "utf-8"
   });
@@ -45,7 +56,11 @@ allFiles.forEach(file => {
     }
   });
 
-  console.log(results);
+  const wb = xlsx.utils.book_new();
+  const ws = xlsx.utils.json_to_sheet(results);
+  xlsx.utils.book_append_sheet(wb, ws, '123');
+
+  xlsx.writeFile(wb, `${file}_${timestamp}.xlsx`);
 });
 
 // 获取路径下所有的文件夹名称
