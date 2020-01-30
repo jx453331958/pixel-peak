@@ -15,7 +15,7 @@ const xlsx = require('xlsx');
 
 const now = Date.now();
 
-const dirTimestamp = dayjs(now).format('YYYYMMDD-HH:mm:ss');
+const dirTimestamp = dayjs(now).format('YYYYMMDD-HHmmss');
 
 const outDirPath = mkdirp.sync(`out_${dirTimestamp}`);
 
@@ -24,8 +24,9 @@ const allFiles = fs
   .filter(name => !name.includes(".js"));
 
 allFiles.forEach(file => {
-  const timestamp = dayjs(Date.now()).format('YYYYMMDD-HH:mm:ss');
+  const timestamp = dayjs(Date.now()).format('YYYYMMDD-HHmmss');
   
+  const fileName = file.split('.')[0];
   const rets = fs.readFileSync(path.resolve(__dirname, file), {
     encoding: "utf-8"
   });
@@ -36,6 +37,8 @@ allFiles.forEach(file => {
     .slice(1);
 
   const results = [];
+  let multiplySum = 0;
+  let totalSum = 0;
 
   dataList.forEach(item => {
     try {
@@ -45,22 +48,33 @@ allFiles.forEach(file => {
       const hwhmY = arr[5];
 
       if (!hwhmX || !hwhmY) return;
+
+      const multiply = round(chain(hwhmX).multiply(hwhmY).done(), 5);
+      const sum = round(chain(hwhmX).add(hwhmY).done(), 5)
+
+      multiplySum += multiply;
+      totalSum += sum;
+
       results.push({
         hwhmX,
         hwhmY,
-        multiply: round(chain(hwhmX).multiply(hwhmY).done(), 5),
-        sum: round(chain(hwhmX).add(hwhmY).done(), 5)
+        multiply,
+        sum
       });
     } catch (error) {
       console.error(error);
     }
   });
 
+  results.push({
+    multiplyAvg: multiplySum / results.length,
+    sumAvg: totalSum / results.length
+  })
   const wb = xlsx.utils.book_new();
   const ws = xlsx.utils.json_to_sheet(results);
   xlsx.utils.book_append_sheet(wb, ws, '123');
 
-  xlsx.writeFile(wb, `${file}_${timestamp}.xlsx`);
+  xlsx.writeFile(wb, path.join(outDirPath, `${fileName}_${timestamp}.xlsx`));
 });
 
 // 获取路径下所有的文件夹名称
