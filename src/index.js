@@ -20,14 +20,14 @@ const dirTimestamp = dayjs(now).format('YYYYMMDD-HHmmss');
 const outDirPath = mkdirp.sync(`out_${dirTimestamp}`);
 
 const allFiles = fs
-  .readdirSync(__dirname)
+  .readdirSync(path.resolve('./generic-files'))
   .filter(name => !name.includes(".js"));
 
 allFiles.forEach(file => {
   const timestamp = dayjs(Date.now()).format('YYYYMMDD-HHmmss');
   
   const fileName = file.split('.')[0];
-  const rets = fs.readFileSync(path.resolve(__dirname, file), {
+  const rets = fs.readFileSync(path.resolve('./generic-files', file), {
     encoding: "utf-8"
   });
   const dataList = rets
