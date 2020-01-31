@@ -6,21 +6,20 @@ const mkdirp = require('mkdirp');
 const xlsx = require('xlsx');
 
 const now = Date.now();
-const cwd = process.cwd();
 
 const dirTimestamp = dayjs(now).format('YYYYMMDD-HHmmss');
 
-const outDirPath = mkdirp.sync(`out_${dirTimestamp}`);
+const outDirPath = mkdirp.sync(path.resolve(__dirname, `out_${dirTimestamp}`));
 
 const allFiles = fs
-  .readdirSync(path.resolve(cwd, 'generic-files'))
+  .readdirSync(path.resolve(__dirname, 'generic-files'))
   .filter(name => !name.includes(".js"));
 
 allFiles.forEach(file => {
   const timestamp = dayjs(Date.now()).format('YYYYMMDD-HHmmss');
   
   const fileName = file.split('.')[0];
-  const rets = fs.readFileSync(path.resolve(cwd, 'generic-files', file), {
+  const rets = fs.readFileSync(path.resolve(__dirname, 'generic-files', file), {
     encoding: "utf-8"
   });
   const dataList = rets
