@@ -1,11 +1,3 @@
-/**
- * TODO LIST
- * 1. 输出到out目录
- * 2. 输出的文件打时间戳
- * 3. 读取目录下全部源数据文件
- * 4. 异步任务
- * 5. 输出平均值
- */
 const fs = require("fs-extra");
 const path = require("path");
 const { evaluate, chain, round } = require("mathjs");
@@ -14,20 +6,21 @@ const mkdirp = require('mkdirp');
 const xlsx = require('xlsx');
 
 const now = Date.now();
+const cwd = process.cwd();
 
 const dirTimestamp = dayjs(now).format('YYYYMMDD-HHmmss');
 
 const outDirPath = mkdirp.sync(`out_${dirTimestamp}`);
 
 const allFiles = fs
-  .readdirSync(path.resolve('./generic-files'))
+  .readdirSync(path.resolve(cwd, 'generic-files'))
   .filter(name => !name.includes(".js"));
 
 allFiles.forEach(file => {
   const timestamp = dayjs(Date.now()).format('YYYYMMDD-HHmmss');
   
   const fileName = file.split('.')[0];
-  const rets = fs.readFileSync(path.resolve('./generic-files', file), {
+  const rets = fs.readFileSync(path.resolve(cwd, 'generic-files', file), {
     encoding: "utf-8"
   });
   const dataList = rets
