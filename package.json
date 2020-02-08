@@ -7,7 +7,8 @@
     "dev": "node src/batch.js",
     "dev:single": "node src/single.js",
     "build": "pkg src/batch.js",
-    "build:single": "pkg src/single.js"
+    "build:single": "pkg src/single.js",
+    "clear": "rm -rf out_*"
   },
   "author": "jiangxuan",
   "license": "ISC",
