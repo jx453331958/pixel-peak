@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node src/batch.js",
     "dev:single": "node src/single.js",
-    "build": "pkg src/batch.js, pkg src/single.js"
+    "build": "pkg src/batch.js",
+    "build:single": "pkg src/single.js"
   },
   "author": "jiangxuan",
   "license": "ISC",
