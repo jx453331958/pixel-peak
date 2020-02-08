@@ -4,8 +4,9 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "dev": "node src/index.js",
-    "build": "pkg src/index.js"
+    "dev": "node src/batch.js",
+    "dev:single": "node src/single.js",
+    "build": "pkg src/batch.js, pkg src/single.js"
   },
   "author": "jiangxuan",
   "license": "ISC",

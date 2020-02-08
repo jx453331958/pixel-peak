@@ -1,3 +1,6 @@
+/**
+ * 读取generic-files目录，批量处理
+ */
 const fs = require("fs-extra");
 const path = require("path");
 const { evaluate, chain, round } = require("mathjs");
