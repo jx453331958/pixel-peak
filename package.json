@@ -8,7 +8,9 @@
     "dev:single": "node src/single.js",
     "build": "pkg src/batch.js",
     "build:single": "pkg src/single.js",
-    "clear": "rm -rf out_*"
+    "clear": "rm -rf out_* batch* single*",
+    "test": "chmod +x batch-macos && ./batch-macos",
+    "test:single": "chmod +x single-macos && ./single-macos"
   },
   "author": "jiangxuan",
   "license": "ISC",
