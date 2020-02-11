@@ -4,73 +4,88 @@
 const fs = require("fs-extra");
 const path = require("path");
 const { evaluate, chain, round } = require("mathjs");
-const dayjs = require('dayjs');
-const mkdirp = require('mkdirp');
-const xlsx = require('xlsx');
+const dayjs = require("dayjs");
+const mkdirp = require("mkdirp");
+const xlsx = require("xlsx");
 
 const now = Date.now();
 const cwd = process.cwd();
 
-const dirTimestamp = dayjs(now).format('YYYYMMDD-HHmmss');
+const dirTimestamp = dayjs(now).format("YYYYMMDD-HHmmss");
 
 const outDirPath = mkdirp.sync(path.resolve(cwd, `out_${dirTimestamp}`));
 
 const allFiles = fs
-  .readdirSync(path.resolve(cwd, 'generic-files'))
-  .filter(name => !name.includes(".js"));
+  .readdirSync(path.resolve(cwd, "generic-files"))
+  .filter(name => !name.includes(".js"))
+  .filter(name => name.includes(".txt"));
 
 allFiles.forEach(file => {
-  const timestamp = dayjs(Date.now()).format('YYYYMMDD-HHmmss');
-  
-  const fileName = file.split('.')[0];
-  const rets = fs.readFileSync(path.resolve(cwd, 'generic-files', file), {
-    encoding: "utf-8"
-  });
-  const dataList = rets
-    .toString()
-    .split("$peakList")[1]
-    .split("\n")
-    .slice(1);
+  try {
+    const timestamp = dayjs(Date.now()).format("YYYYMMDD-HHmmss");
 
-  const results = [];
-  let multiplySum = 0;
-  let totalSum = 0;
+    const fileName = file.split(".")[0];
+    const rets = fs.readFileSync(path.resolve(cwd, "generic-files", file), {
+      encoding: "utf-8"
+    });
+    const dataList = rets
+      .toString()
+      .split("$peakList")[1]
+      .split("\n")
+      .slice(1);
 
-  dataList.forEach(item => {
-    try {
-      const arr = item.split(" ").filter(s => s !== "");
+    const results = [];
+    let multiplySum = 0;
+    let totalSum = 0;
 
-      const hwhmX = arr[4];
-      const hwhmY = arr[5];
+    dataList.forEach(item => {
+      try {
+        const arr = item.split(" ").filter(s => s !== "");
 
-      if (!hwhmX || !hwhmY) return;
+        const hwhmX = arr[4];
+        const hwhmY = arr[5];
 
-      const multiply = round(chain(hwhmX).multiply(hwhmY).done(), 5);
-      const sum = round(chain(hwhmX).add(hwhmY).done(), 5)
+        if (!hwhmX || !hwhmY) return;
 
-      multiplySum += multiply;
-      totalSum += sum;
+        const multiply = round(
+          chain(hwhmX)
+            .multiply(hwhmY)
+            .done(),
+          5
+        );
+        const sum = round(
+          chain(hwhmX)
+            .add(hwhmY)
+            .done(),
+          5
+        );
 
-      results.push({
-        hwhmX,
-        hwhmY,
-        multiply,
-        sum
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  });
+        multiplySum += multiply;
+        totalSum += sum;
 
-  results.push({
-    multiplyAvg: multiplySum / results.length,
-    sumAvg: totalSum / results.length
-  })
-  const wb = xlsx.utils.book_new();
-  const ws = xlsx.utils.json_to_sheet(results);
-  xlsx.utils.book_append_sheet(wb, ws, '123');
+        results.push({
+          hwhmX,
+          hwhmY,
+          multiply,
+          sum
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    });
 
-  xlsx.writeFile(wb, path.join(outDirPath, `${fileName}_${timestamp}.xlsx`));
+    results.push({
+      multiplyAvg: multiplySum / results.length,
+      sumAvg: totalSum / results.length
+    });
+    const wb = xlsx.utils.book_new();
+    const ws = xlsx.utils.json_to_sheet(results);
+    xlsx.utils.book_append_sheet(wb, ws, "123");
+
+    xlsx.writeFile(wb, path.join(outDirPath, `${fileName}_${timestamp}.xlsx`));
+  } catch (error) {
+    console.error(`处理${file}文件出错, 异常内容: ${error}`)
+  }
 });
 
 // 获取路径下所有的文件夹名称
